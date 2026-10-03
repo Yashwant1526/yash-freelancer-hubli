@@ -8,6 +8,13 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
+function trackWhatsAppClick(source) {
+  if (!supabase) return;
+  void supabase.from('whatsapp_clicks').insert({ source, page: window.location.pathname }).then(({ error }) => {
+    if (error) console.error('Could not record WhatsApp click:', error.message);
+  });
+}
+
 const services = [
   { no: '01', icon: Code2, title: 'Website development', desc: 'Fast, responsive websites designed to turn visitors into customers.', tags: ['Business websites', 'Landing pages', 'Portfolio sites'] },
   { no: '02', icon: Palette, title: 'Graphic design', desc: 'A clear visual identity that helps your brand stand out everywhere.', tags: ['Brand identity', 'Social creatives', 'Marketing assets'] },
@@ -19,10 +26,10 @@ const projects = [
   { id: '02', type: 'Brand identity', title: 'Good Roots', desc: 'A fresh identity for a modern food brand.', style: 'project-art art-two', mark: 'good\nroots', detail: 'Identity & social kit' },
   { id: '03', type: 'Social content', title: 'Move Daily', desc: 'A high-energy campaign for an active lifestyle.', style: 'project-art art-three', mark: 'MOVE\nDAILY', detail: 'Campaign creative concept' },
 ];
-function WhatsAppLink({ children, className = 'btn btn-primary', text = 'Hi Yash! I would like to enquire about your services.' }) {
+function WhatsAppLink({ children, className = 'btn btn-primary', text = 'Hi Yash! I would like to enquire about your services.', source = 'direct_whatsapp_link' }) {
   const phoneReady = /^\d{10,15}$/.test(WHATSAPP_NUMBER);
   const href = phoneReady ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text + ' Please share your WhatsApp number on the website.')}`;
-  return <a className={className} href={href} target="_blank" rel="noreferrer">{children}</a>;
+  return <a className={className} href={href} target="_blank" rel="noreferrer" onClick={() => trackWhatsAppClick(source)}>{children}</a>;
 }
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -123,6 +130,7 @@ function App() {
     const msg = `Hi Yash! I'd like to enquire.\nName: ${lead.name}\nEmail: ${lead.email}\nService: ${lead.service}\nBudget: ${lead.budget || 'Not decided'}\nDetails: ${lead.message}`;
     setLeadForm({ name: '', email: '', service: 'Website development', budget: '', message: '' });
     setNotice('Your enquiry was saved securely. WhatsApp is opening with your message.');
+    trackWhatsAppClick('enquiry_form');
     const ready = /^\d{10,15}$/.test(WHATSAPP_NUMBER);
     window.open(ready ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };

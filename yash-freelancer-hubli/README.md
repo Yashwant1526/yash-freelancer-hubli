@@ -45,6 +45,7 @@ For Render, use root directory `yash-freelancer-hubli`, build command `npm insta
 ## Data and access
 
 - Enquiry form submissions are stored in Supabase.
+- WhatsApp button clicks are stored in `public.whatsapp_clicks`; inspect this table in Supabase **Table Editor**. It stores the click source and page, not WhatsApp message contents or replies.
 - Enquiry reads, status changes, and deletion require administrator membership.
 - Client authentication uses Supabase Auth; passwords are not stored by this app.
 - Project records are scoped to the assigned Supabase Auth user.

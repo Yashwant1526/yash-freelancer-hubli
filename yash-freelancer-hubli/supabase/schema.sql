@@ -32,6 +32,13 @@ create table if not exists public.projects (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.whatsapp_clicks (
+  id uuid primary key default gen_random_uuid(),
+  source text not null check (length(trim(source)) between 1 and 80),
+  page text not null check (length(page) <= 300),
+  created_at timestamptz not null default now()
+);
+
 alter table public.leads alter column id set default gen_random_uuid()::text;
 alter table public.projects add column if not exists client_id uuid references auth.users(id) on delete cascade;
 alter table public.projects alter column id set default gen_random_uuid()::text;
@@ -72,6 +79,7 @@ alter table public.leads enable row level security;
 alter table public.profiles enable row level security;
 alter table public.admin_users enable row level security;
 alter table public.projects enable row level security;
+alter table public.whatsapp_clicks enable row level security;
 
 drop policy if exists "Allow public read for leads" on public.leads;
 drop policy if exists "Allow public insert for leads" on public.leads;
@@ -118,6 +126,14 @@ create policy "Clients can read own projects" on public.projects
 create policy "Admins can manage projects" on public.projects
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "Public can log WhatsApp clicks" on public.whatsapp_clicks;
+drop policy if exists "Admins can read WhatsApp clicks" on public.whatsapp_clicks;
+create policy "Public can log WhatsApp clicks" on public.whatsapp_clicks
+  for insert to anon, authenticated
+  with check (length(trim(source)) > 0 and length(page) <= 300);
+create policy "Admins can read WhatsApp clicks" on public.whatsapp_clicks
+  for select to authenticated using (public.is_admin());
+
 grant usage on schema public to anon, authenticated;
 revoke insert on public.leads from anon, authenticated;
 grant insert (name, email, service, budget, message) on public.leads to anon, authenticated;
@@ -125,4 +141,6 @@ grant select, update, delete on public.leads to authenticated;
 grant select on public.profiles to authenticated;
 grant select on public.admin_users to authenticated;
 grant select, insert, update, delete on public.projects to authenticated;
+grant insert (source, page) on public.whatsapp_clicks to anon, authenticated;
+grant select on public.whatsapp_clicks to authenticated;
 grant execute on function public.is_admin() to anon, authenticated;
