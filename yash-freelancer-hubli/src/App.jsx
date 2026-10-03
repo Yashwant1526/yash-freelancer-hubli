@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, Code2, Clapperboard, Menu, Palette, Megaphone, MessageCircle, ShieldCheck, Sparkles, X, LayoutDashboard, UserRound, LogOut, BriefcaseBusiness, Clock3, CircleCheck, Search, Plus, Trash2, LockKeyhole, Mail, Phone, Globe2 } from 'lucide-react';
 
 // IMPORTANT: Replace this with your WhatsApp number including country code, digits only.
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '91XXXXXXXXXX';
+const WHATSAPP_NUMBER = '917618741576';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;

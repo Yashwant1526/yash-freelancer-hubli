@@ -35,7 +35,6 @@ Set these variables in your hosting provider's project settings, then redeploy:
 ```text
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-publishable-or-anon-key
-VITE_WHATSAPP_NUMBER=919876543210
 ```
 
 Use only the Supabase publishable/anon key in the browser app. Never put the `service_role` key in frontend or hosting build variables.
