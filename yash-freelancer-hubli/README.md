@@ -1,66 +1,52 @@
-# Yash Freelancer Hubli — live-ready React app
+# YPX Studios
 
-A responsive freelance business website built with React, Vite, and Supabase-ready data storage for deployment on Netlify.
+React and Vite website with Supabase Auth and database policies for enquiries and client projects.
 
-## Run locally
+## Local development
 
-1. Install Node.js 20+.
-2. Open the project folder in VS Code.
-3. Copy `.env.example` to `.env` and fill in your Supabase values.
-4. Run:
+Copy `.env.example` to `.env`, add the Supabase project URL and publishable/anon key, then run:
 
 ```bash
 npm install
 npm run dev
 ```
 
-5. Open the URL shown by Vite, usually `http://localhost:5173`.
+## Supabase backend setup
 
-## Deploy to Netlify
+1. Create a Supabase project.
+2. In **SQL Editor**, run `supabase/schema.sql`.
+3. In **Authentication → Providers**, make sure Email sign-in is enabled.
+4. Add your deployed site URL to **Authentication → URL Configuration → Redirect URLs**.
+5. Create your administrator account from the site's **Client login → Create an account** form and confirm its email if Supabase requests it.
+6. In Supabase SQL Editor, grant that account administrator access by replacing the email below with the same account email:
 
-1. Push this project to GitHub.
-2. Create a new site in Netlify.
-3. Set the build command to:
-
-```bash
-npm run build
+```sql
+insert into public.admin_users (user_id)
+select id from auth.users where email = 'you@example.com'
+on conflict (user_id) do nothing;
 ```
 
-4. Set the publish directory to:
+Sign into **Client login** with that account, then open **Admin**. The database only permits listed administrator accounts to read or manage enquiries. Clients can only read projects assigned to their own account.
 
-```bash
-dist
-```
+## Hosting environment variables
 
-5. Add environment variables in Netlify:
+Set these variables in your hosting provider's project settings, then redeploy:
 
-```bash
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```text
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-publishable-or-anon-key
 VITE_WHATSAPP_NUMBER=919876543210
 ```
 
-6. Deploy the site.
+Use only the Supabase publishable/anon key in the browser app. Never put the `service_role` key in frontend or hosting build variables.
 
-## Supabase setup
+For Render, use root directory `yash-freelancer-hubli`, build command `npm install && npm run build`, and publish directory `dist`.
 
-1. Create a new Supabase project.
-2. Open the SQL editor.
-3. Run the contents of `supabase/schema.sql`.
-4. Confirm the `public.leads`, `public.projects`, and `public.profiles` tables exist.
-5. Make sure the Supabase anon key is added to your Netlify environment variables.
+## Data and access
 
-## What this app does
-
-- Accepts leads from the contact form
-- Saves leads to Supabase when configured
-- Saves projects and user profiles to Supabase when configured
-- Falls back to browser localStorage if the app is run without env values
-- Uses a Netlify-ready static build
-
-## Before launch
-
-- Replace the WhatsApp number in `src/App.jsx` or environment variables.
-- Update the email, address, and business details.
-- Add a real Supabase auth flow if you want customer-only project pages.
-- Keep your project URL and Supabase keys in Netlify environment settings.
+- Enquiry form submissions are stored in Supabase.
+- Enquiry reads, status changes, and deletion require administrator membership.
+- Client authentication uses Supabase Auth; passwords are not stored by this app.
+- Project records are scoped to the assigned Supabase Auth user.
+- New projects can be assigned from the admin UI to the signed-in account. Assigning a different client's project requires setting its `client_id` to that client's Auth user ID in Supabase.
+- Do not use the old demo account or project data for real customers.
